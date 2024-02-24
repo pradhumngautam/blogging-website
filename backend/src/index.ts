@@ -73,10 +73,19 @@ app.post('/api/v1/signin', async (c) => {
 	return c.json({ jwt });
 })
 
-app.get('/api/v1/blog/:id', (c) => {
-	const id = c.req.param('id')
-	console.log(id);
-	return c.text('get blog route')
+app.get('/api/v1/blog/:id', async (c) => {
+	const id = c.req.param('id');
+	const prisma = new PrismaClient({
+		datasourceUrl: c.env?.DATABASE_URL	,
+	}).$extends(withAccelerate());
+	
+	const post = await prisma.post.findUnique({
+		where: {
+			id
+		}
+	});
+
+	return c.json(post);
 })
 
 app.post('/api/v1/blog', async (c) => {
